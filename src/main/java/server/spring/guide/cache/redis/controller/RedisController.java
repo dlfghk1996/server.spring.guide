@@ -39,7 +39,7 @@ public class RedisController {
 
     @GetMapping("/test")
     public ResponseEntity<String> yrdy() {
-        System.out.println("hi");
+        System.out.println("hello");
         return ResponseEntity.ok("hello");
     }
 }
