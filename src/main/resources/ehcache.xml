@@ -1,0 +1,52 @@
+<config
+  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+  xmlns='http://www.ehcache.org/v3'
+  xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core.xsd">
+
+  <persistence directory="cache/data"/>
+
+  <!-- CacheManager 에 의해 작성되고 관리될 Cache 인스턴스(Cache<k,v>) -->
+  <cache alias = "userCache">
+  <!--  <cache-template name="default">-->
+    <key-type>java.lang.String</key-type>
+    <value-type>java.lang.String</value-type>
+
+    <!-- 캐시 만료 시간 = timeToLiveSeconds
+    현재는 tti과 ttl을 함께 사용할 수는 없고, 원한다면 클래스를 새로 추가해서 두 속성 모두 사용되게 하면 된다.-->
+    <expiry>
+      <ttl unit="seconds">30</ttl>
+      <!--      <tti unit="seconds">30</tti>-->
+    </expiry>
+
+    <!-- listeners는 Cache의 리스너를 등록하는 요소이다. -->
+    <listeners>
+      <listener>
+        <!-- 리스너 클래스 위치 -->
+        <class>server.spring.guide.cache.ehcache.common.CacheEventLogger</class>
+        <!-- 비동기 방식 사용, 캐시 동작을 블로킹하지 않고 이벤트를 처리, SYNCHRONOUS와 반대 -->
+        <event-firing-mode>ASYNCHRONOUS</event-firing-mode>
+        <!-- 이벤트 처리 순서 설정 X, ORDERED와 반대 -->
+        <event-ordering-mode>UNORDERED</event-ordering-mode>
+
+        <!-- 리스너가 감지할 이벤트 설정(EVICTED, EXPIRED, REMOVED, CREATED, UPDATED) -->
+        <events-to-fire-on>CREATED</events-to-fire-on>
+        <events-to-fire-on>EXPIRED</events-to-fire-on>
+      </listener>
+    </listeners>
+
+    <!-- 캐시 데이터의 저장 공간과 용량을 지정한다.-->
+    <resources>
+      <!-- JVM 힙 메모리에 생성 될 최대 캐시 항목? LRU strategy -->
+      <heap unit="entries">1000</heap>
+      <!-- JVM 힙 메모리 외부 메모리 (GC 비관리 영역)-->
+      <offheap unit="MB">10</offheap>
+      <!-- Disk 메모리, LFU strategy
+           persistent="false" : 종료 시 디스크 데이터를 삭제
+           persistent="true" :  종료 시 디스크 데이터를 보존 및 JVM을 재시작 시 재로드 -->
+      <disk unit="MB" persistent="false">20</disk>
+    </resources>
+  </cache>
+
+<!--  <cache alias="findMemberCache" uses-template="default"></cache>-->
+
+</config>

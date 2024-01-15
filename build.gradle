@@ -1,0 +1,98 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.2.1'
+	id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'server.spring'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+
+	//implementation 'org.springframework.session:spring-session-jdbc'
+
+	// Spring
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// DataBase
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.data:spring-data-envers'
+
+	// Cache-ehcache
+	implementation "org.ehcache:ehcache:3.8.1"
+	implementation "javax.cache:cache-api:1.1.1"
+
+	// Cache
+	implementation "org.springframework.boot:spring-boot-starter-cache"
+
+	// Cache-redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.1.2'
+
+	//implementation 'org.springframework.boot:spring-boot-starter-security:3.1.5'
+
+	// Java 11 부터 javax 라이브러리가 없이 때문에 추가로 필요 (ehcache)
+	implementation 'javax.xml.bind:jaxb-api:2.3.1'
+	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.7'
+
+	// QueryDSL (== 스프링 부트 3.0 이상 ==)
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+
+	// java.lang.NoClassDefFoundError:javax/persistence/Entity => error 방지
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+	// ETC
+	implementation 'org.modelmapper:modelmapper:2.4.2'
+
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// Test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+// Qclass 생성 경로
+def generated = "src/main/generated"
+
+// build시 사용할 sourceSet 추가 설정 (src/main/java 디렉터리 외의 파일 빌드 target)
+sourceSets {
+	main.java.srcDirs += [generated]
+}
+
+//configurations {
+//    querydsl.extendsFrom compileClasspath
+//}
+
+tasks.withType(JavaCompile) {
+	options.annotationProcessorGeneratedSourcesDirectory = file(generated)
+}
+
+clean.doLast {
+	file(generated).deleteDir()
+}
