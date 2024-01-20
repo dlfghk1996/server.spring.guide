@@ -30,6 +30,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
+
 	// DataBase
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -58,6 +59,9 @@ dependencies {
 	// java.lang.NoClassDefFoundError:javax/persistence/Entity => error 방지
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
 	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+	// aspectj
+	implementation 'org.aspectj:aspectjweaver'
 
 	// ETC
 	implementation 'org.modelmapper:modelmapper:2.4.2'

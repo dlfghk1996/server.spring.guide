@@ -1,4 +1,4 @@
-package server.spring.guide.common;
+package server.spring.guide.common.controller;
 
 
 import lombok.extern.slf4j.Slf4j;
