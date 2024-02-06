@@ -6,7 +6,7 @@
   <persistence directory="cache/data"/>
 
   <!-- CacheManager 에 의해 작성되고 관리될 Cache 인스턴스(Cache<k,v>) -->
-  <cache alias = "userCache">
+  <cache alias = "group_user">
   <!--  <cache-template name="default">-->
     <key-type>java.lang.String</key-type>
     <value-type>java.lang.String</value-type>
@@ -22,7 +22,7 @@
     <listeners>
       <listener>
         <!-- 리스너 클래스 위치 -->
-        <class>server.spring.guide.cache.ehcache.common.CacheEventLogger</class>
+        <class>server.spring.guide.cache.common.listener.CustomEhCacheEventListener</class>
         <!-- 비동기 방식 사용, 캐시 동작을 블로킹하지 않고 이벤트를 처리, SYNCHRONOUS와 반대 -->
         <event-firing-mode>ASYNCHRONOUS</event-firing-mode>
         <!-- 이벤트 처리 순서 설정 X, ORDERED와 반대 -->
