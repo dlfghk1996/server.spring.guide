@@ -2,6 +2,7 @@ package server.spring.guide.cache.redis.util;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.Cursor;
@@ -34,10 +35,10 @@ public class RedisTemplateUtils {
     }
 
     /** Set Hash Type */
-    public void setDataByHash(String key, String hashKey, Long value){
+    public void setDataByHash(String hashKey, Long key, Object value){
         // Hash Key1 [(key1:value)(key2:value)]
         // Hash Key2 [(key1:value)(key2:value)]
-        redisTemplate.opsForHash().put(key, hashKey, value);
+        redisTemplate.opsForHash().put(key.toString(), hashKey, value);
     }
 
     /** Set all Hash Type */
@@ -69,14 +70,14 @@ public class RedisTemplateUtils {
     }
 
     /** Set ZSet Type */
-    public void setDataByZSet(String key, String userName, Double value){
-        redisTemplate.opsForZSet().add(key, userName, value);
+    public void setDataByZSet(String key, String field, Double value){
+        redisTemplate.opsForZSet().add(key, field, value);
     }
 
-    /** get ZSet Type */
-    public Long getDataByZSet(String key, String userName){
+    /** get ranking ZSet Type */
+    public Long getDataRankingByZSet(String key, String field){
         Long ranking = 0L;
-        Double ranking1 = redisTemplate.opsForZSet().score(key, userName);
+        Long ranking1 = redisTemplate.opsForZSet().rank(key, field);
         System.out.println(ranking1);
         Set<Object> ranking2 = redisTemplate.opsForZSet().reverseRangeByScore("ranking", ranking, ranking1, 0, 1);
         for (Object s : ranking2) {
@@ -86,9 +87,14 @@ public class RedisTemplateUtils {
         return ranking+1;
     }
 
+    /** get value ZSet Type */
+    public Double getDataByZSet(String key, String field){
+        return redisTemplate.opsForZSet().score(key, field);
+    }
+
     /** get all ZSet Type */
-    public Set<TypedTuple<Object>> getAllDataByZSet(String key){
-        return redisTemplate.opsForZSet().reverseRangeWithScores(key, 0, 10);
+    public Set<TypedTuple<Object>> getAllDataByZSet(String key, int start, int end){
+        return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
     }
 
     /** increment ZSet Type Data */
@@ -138,6 +144,15 @@ public class RedisTemplateUtils {
     /** key 로 데이터 삭제 */
     public void deleteData(String key){
         redisTemplate.delete(key);
+    }
+
+    public Set<String> keys(String keyPattern) {
+       return redisTemplate.keys(keyPattern);
+    }
+
+    /** cahce 유효기간 설정 */
+    public void expire(String key, int day, TimeUnit timeUnit) {
+        redisTemplate.expire(key, day, timeUnit);
     }
 }
 

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RankingResponse {
+    private Long userId;
+    private String gender;
     private String userName;
     private String raking;
     private Double count;

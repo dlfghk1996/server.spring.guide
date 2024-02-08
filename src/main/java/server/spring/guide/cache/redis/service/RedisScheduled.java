@@ -1,99 +1,138 @@
-//package server.spring.guide.cache.redis.service;
-//
-//import jakarta.transaction.Transactional;
-//import java.util.Iterator;
-//import java.util.Set;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.data.redis.core.HashOperations;
-//import org.springframework.scheduling.annotation.Scheduled;
-//import org.springframework.stereotype.Service;
-//
-//
-//@Service
-//@RequiredArgsConstructor
-//public class RedisScheduled {
-//    @Scheduled(cron = "0 0 0 * * *")
-//    void remove(String key) {
-//        HashOperations<String, String, Object> hashOperations = redisTemplate.opsForHash();
-//        // hashOperations.;
-//        // alreadyVisitQuestionIds.leftPop(KEY);
-//
-//    }
-//
-//    // 위의 코드는 Redis에 기록된 정보들을 DB에 업데이트를 진행하면서 데이터의 일관성을 유지하고,
-//    // Redis의 저장된 정보들을 초기화 합니다.
-//
-//    //Reids의 존재하는 Key들을 전부 불러와 Set에 저장합니다.
-//    //Iterator를 통해 Key를 하나씩 읽어 각 Key에 저장된 정보들을 DB에 저장합니다.
-//    //하지만 만약 Redis가 아직 비어있다면, null값이 들어올 수 있기에 예외처리를 진행해줍니다.
-//    //여기서 또 중요한 것은 Redis가 DB의 업데이트를 일정시간마다 실행될 수 있도로 Spring Boot Scheduled를 활용하여 자동화를 시켜놓은 것을 알 수 있습니다.
-//    @Scheduled(fixedDelay = 1000L*18L)
-//    @Transactional
-//    public void deleteViewCntToRedis(){
-//        String hashkey = "views";
-//        Set<String> Rediskey = redisTemplate.keys("problemId*");
-//        Iterator<String> it = Rediskey.iterator();
-//        while (it.hasNext()) {
-//            String data = it.next();
-//            Long problemId = Long.parseLong(data.split("::")[1]);
+package server.spring.guide.cache.redis.service;
+
+import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.internal.bytebuddy.build.HashCodeAndEqualsPlugin.Sorted;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import server.spring.guide.cache.redis.dto.RankingResponse;
+import server.spring.guide.cache.redis.enums.CachingType;
+import server.spring.guide.cache.redis.util.RedisTemplateUtils;
+import server.spring.guide.common.domain.User;
+import server.spring.guide.common.domain.UserLikeUp;
+import server.spring.guide.common.repository.UserLikeUpRepository;
+import server.spring.guide.common.repository.UserRepository;
+
+/**
+ * Redis에 기록된 정보들을 DB에 업데이트를 진행하면서 데이터의 일관성을 유지하고,
+ * Redis의 저장된 정보들을 초기화 한다.
+ * */
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class RedisScheduled {
+
+
+    private final RedisTemplateUtils redisTemplateUtils;
+    private final UserRepository userRepository;
+    private final UserLikeUpRepository repository;
+
+    /**
+     * Redis Data -> insert DB
+     * 3분마다 메소드 수행
+     */
+    @Scheduled(cron = "0 0 0/1 * * *") // 초,분,시,날,달,요일,연도
+    public void deleteViewCntCacheFromRedis() {
+        // productViewCnt 패턴의 키 조회.
+        Set<String> redisKeys = redisTemplateUtils.keys("productViewCnt*");
+        Iterator<String> it = redisKeys.iterator();
+        while (it.hasNext()) {
+            String key = it.next();
+            Long productId = Long.parseLong(key.split("::")[1]);
+            Long viewCnt = Long.parseLong((String) redisTemplateUtils.getData(String.valueOf(productId)));
+            // 하지만 만약 Redis가 아직 비어있다면, null값이 들어올 수 있기에 예외처리를 진행해줍니다.
 //            if (redisTemplate.opsForHash().get(data, hashkey) == null){
 //                break;
 //            }
-//            Long viewCnt = Long.parseLong((String.valueOf(redisTemplate.opsForHash().get(data, hashkey))));
-//            problemRepositoryImp.addViewCntFromRedis(problemId, viewCnt);
-//            redisTemplate.opsForHash().delete(data, hashkey);
-//        }
-//        System.out.println("views update complete");
-//    }
-//
-//}
-//////@Import({ CacheConfig.class, MajorService.class}) // Configuration
-//////@ExtendWith(SpringExtension.class)
-//////@ImportAutoConfiguration(classes = {
-//////    CacheAutoConfiguration.class,
-//////    RedisAutoConfiguration.class
-//////})
-//
-//
-//
-//
-//이제 조회를 할때마다 productViewCnt::{productId}의 값이 하나씩 늘어날 것입니다. 이제 조회수는 해결했으니 쌓인 캐시들을 읽어 데이터베이스에 반영해야 합니다. 3분마다 데이터베이스에 반영하도록 하기 위해 스프링 배치 스케쥴러를 이용했습니다.
-//
-//
-//
-//메인에 @EnableScheduling을 추가해줘 스케쥴링을 할 수 있게 합니다.
-//@Scheduled(cron = "0 0/3 * * * ?")
-//    왼쪽부터 초,분,시,날,달,요일,연도를 뜻하며 우리 프로젝트에는 3분마다 메소드 수행을 하도록 설정하였습니다.
-//
-//
-//
-//redisTemplate.keys 메소드로 productViewCnt 패턴의 키들을 불러옵니다.
-//
-//아까 예시에 따르면 "productViewCnt::2", "productViewCnt::4" 입니다. iterator로 키들을 하나씩 부르면서 addViewCntFromRedis라는 메소드로 업데이트를 수행하게 하였습니다. 이 후에 업데이트 된 데이터베이스 반영을 위해 관련 캐시들을 전부 삭제하도록 하였습니다. 이렇게 해야 조회할때 사용된 cacheable의 캐시도 삭제되면서 업데이트된 조회수를 새로 불러올 수 있기 때문입니다.
-//
-//
-//
-//@Scheduled(cron = "0 0/3 * * * ?")
-//public void deleteViewCntCacheFromRedis() {
-//    Set<String> redisKeys = redisTemplate.keys("productViewCnt*");
-//    Iterator<String> it = redisKeys.iterator();
-//    while (it.hasNext()) {
-//        String data = it.next();
-//        Long productId = Long.parseLong(data.split("::")[1]);
-//        Long viewCnt = Long.parseLong((String) redisTemplate.opsForValue().get(data));
-//        productRepository.addViewCntFromRedis(productId,viewCnt);
-//        redisTemplate.delete(data);
-//        redisTemplate.delete("product::"+productId);
-//    }
-//}
-//
-//
-//QueryDsl Impl부분에 구현해두었습니다. 같은 id를 찾아 단순 update시키는 로직입니다.
-//
-//@Override
-//public void addViewCntFromRedis(Long productId,Long addCnt) {
-//    queryFactory
-//        .update(product)
-//        .set(product.productViewCnt,addCnt)
-//        .where(product.productId.eq(productId))
-//        .execute();
+            // DB insert
+            // repository.save();
+           // repository.addViewCntFromRedis(productId,viewCnt);
+
+            // 이 후에 업데이트 된 데이터베이스 반영을 위해 관련 캐시들을 전부 삭제
+            redisTemplateUtils.deleteData(key);
+            redisTemplateUtils.deleteData("product::"+productId);
+        }
+    }
+
+    /**
+     * DB data -> Insert Redis
+     * 새벽 2시 수행
+     */
+    @Scheduled(cron = "0 0 2 * * *", zone = "Asia/Seoul")
+    public void initializeProjectRanking() {
+        //기존 redis caching 데이터 삭제
+        Set<String> redisKeys = redisTemplateUtils.keys("productViewCnt*");
+        Iterator<String> it = redisKeys.iterator();
+        while (it.hasNext()) {
+            String key = it.next();
+            Long productId = Long.parseLong(key.split("::")[1]);
+            redisTemplateUtils.deleteData(key);
+            redisTemplateUtils.deleteData("product::"+productId);
+        }
+
+        //서버 시작전, redis 에 데이터 적재시키기.
+        LocalDateTime current = LocalDateTime.now();
+        LocalDateTime cursorDate = current.minusDays(7);
+
+        String cursor = cursorDate.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS"));
+        log.info("7일전 날짜 : {}", cursor);
+
+        //7일전 데이터 전부가져와서, redis에 적재
+        //List<UserLikeUp> userLikeUpList = repository.findAllByCreatedAtAfterOrderByCreatedAtDesc(cursor);
+
+        List<UserLikeUp> userLikeUpList = repository.findAll();
+
+        for (UserLikeUp userLikeUp : userLikeUpList) {
+            redisTemplateUtils.setDataByZSet(CachingType.LIKE.getCode(),
+                "userId::" + userLikeUp.getUserId(), (double) userLikeUp.getCount());
+        }
+    }
+
+    // Redis에 상위 랭킹
+    // 매주 월요일 오전 6시에 상위 DTO로 매핑된 Project를 Redis에 저장한다
+    @Scheduled(cron = "0 0 6 ? * MON", zone = "Asia/Seoul")
+    public void initializeLikeUpRanking() {
+        // Sorted Set으로 관리하는 상위 프로젝트의 Id를 조회한다.
+        Set<TypedTuple<Object>> typedTuples = Objects.requireNonNull(
+            redisTemplateUtils.getAllDataByZSet(CachingType.LIKE.getCode(), 0, 9));
+
+        List<RankingResponse> rankingResponses = typedTuples.stream()
+            .map(tuple-> {
+                Long userId = Long.valueOf(((String) tuple.getValue()).split(":")[1]);
+                User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException());
+
+                return new RankingResponse(
+                    (Long) tuple.getValue(), user.getGender(), user.getName(), "ranking",tuple.getScore());})
+            .collect(Collectors.toList());
+
+        rankingResponses.forEach(rankingData ->
+            redisTemplateUtils.setDataByHash(CachingType.RANKING.getCode(), rankingData.getUserId(), rankingData));
+
+       // 1주일 단위로 갱신되기 때문에 TTL을 7일로 설정한다.
+        redisTemplateUtils.expire(CachingType.RANKING.getCode(), 7, TimeUnit.DAYS);
+    }
+
+}
+
+
+
+
+
+
+
+

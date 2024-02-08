@@ -38,24 +38,17 @@ public class RankingCacheService {
     private final RedisTemplateUtils redisTemplateUtils;
     private final UserRepository userRepository;
 
-
     // 전체 랭킹 조회
     public List<RankingResponse> getRankingList() {
-        System.out.println( redisTemplateUtils.getAllDataByZSet(CachingType.RANKING.getCode()).toString());
+        System.out.println(
+            redisTemplateUtils.getListByHash(CachingType.RANKING.getCode()).toString());
 
-        Set<TypedTuple<Object>> typedTuples = redisTemplateUtils.getAllDataByZSet(CachingType.RANKING.getCode());
-
-        return typedTuples.stream()
-            .map(tuple-> new RankingResponse((String) tuple.getValue(), tuple.getScore()))
-            .collect(Collectors.toList());
+        return (List<RankingResponse>) redisTemplateUtils.getListByHash(CachingType.RANKING.getCode());
     }
 
-    // 사용자 랭킹
-    public RankingResponse getUserRanking(Long userId){
-        User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException());
-        Long raking = redisTemplateUtils.getDataByZSet(CachingType.RANKING.getCode(), user.getName());
-        //return new RankingResponse(user.getName(),);
-        return new RankingResponse();
+    // 사용자 랭킹 조회
+    public RankingResponse getUserRanking(Long userId) {
+        return null;
     }
 }
 
@@ -63,5 +56,8 @@ public class RankingCacheService {
 //회원 변경 및 삭제가 일어날때도 Redis value값을 바꿔줘야한다는 걸 서비스 도중 알게되어서 수정했다.
 
 
-//다른 해결해야하는 문제는 전체 유저 기준의 등수를 알기 위해선, Redis에 모든 유저에 대한 score정보가 입력되어야 한다는 것이다. score에 대한 rank는 결국 각 값에 대한 index position이기 때문이다.
-//만약 유저의 일부만 캐싱된 상태에서 HTTP 요청을 받게 된다면 sorted-set에 있는 모든 유저들보다 실제 유저가 더 많기 때문에, 전체 등수 결과에 왜곡이 생긴다.
+//다른 해결해야하는 문제는 전체 유저 기준의 등수를 알기 위해선,
+// Redis에 모든 유저에 대한 score정보가 입력되어야 한다는 것이다.
+// score에 대한 rank는 결국 각 값에 대한 index position이기 때문이다.
+//만약 유저의 일부만 캐싱된 상태에서 HTTP 요청을 받게 된다면
+// sorted-set에 있는 모든 유저들보다 실제 유저가 더 많기 때문에, 전체 등수 결과에 왜곡이 생긴다.

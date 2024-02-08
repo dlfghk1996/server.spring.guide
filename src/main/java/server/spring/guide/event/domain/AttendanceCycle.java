@@ -83,9 +83,6 @@ public class AttendanceCycle {
 
 
     public void increaseProgress(LocalDate attendanceTime) {
-        System.out.println("IncreaseProgress");
-        System.out.println(startDate);
-        System.out.println(attendanceTime);
         this.progress = progress.increase(startDate, attendanceTime);
     }
 
