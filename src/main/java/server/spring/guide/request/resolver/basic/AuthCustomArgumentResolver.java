@@ -1,4 +1,4 @@
-package server.spring.guide.argumentResolver.basic;
+package server.spring.guide.request.resolver.basic;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;

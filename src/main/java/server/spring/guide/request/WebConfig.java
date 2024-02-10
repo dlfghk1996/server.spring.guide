@@ -1,4 +1,4 @@
-package server.spring.guide.argumentResolver;
+package server.spring.guide.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -7,9 +7,8 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
-import server.spring.guide.argumentResolver.basic.AuthCustomArgumentResolver;
-import server.spring.guide.argumentResolver.convert.CustomConverter;
-import server.spring.guide.argumentResolver.convert.CustomConverterFactory;
+import server.spring.guide.request.resolver.basic.AuthCustomArgumentResolver;
+import server.spring.guide.request.resolver.convert.CustomConverterFactory;
 
 @RequiredArgsConstructor
 @Configuration

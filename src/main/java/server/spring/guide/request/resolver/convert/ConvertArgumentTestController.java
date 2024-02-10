@@ -1,9 +1,7 @@
-package server.spring.guide.argumentResolver.convert;
+package server.spring.guide.request.resolver.convert;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import server.spring.guide.argumentResolver.basic.AuthUser;
-import server.spring.guide.argumentResolver.convert.enums.UserType;
-import server.spring.guide.common.dto.UserDTO;
+import server.spring.guide.request.resolver.convert.enums.UserType;
 
 public class ConvertArgumentTestController {
 

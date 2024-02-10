@@ -1,9 +1,7 @@
-package server.spring.guide.argumentResolver.basic;
+package server.spring.guide.request.resolver.basic;
 
-import java.util.stream.Collectors;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import server.spring.guide.argumentResolver.convert.enums.UserType;
+import server.spring.guide.request.resolver.convert.enums.UserType;
 import server.spring.guide.common.dto.UserDTO;
 
 public class ArgumentTestController {

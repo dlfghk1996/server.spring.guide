@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class MainController {
 
-
 //    // (1) Argument Resolver TEST
 //    @PostMapping
 //    public ResponseEntity<InitialDTO> argumentResolverTEST(@InitialAnnotaion @RequestBody InitialDTO request) {
@@ -19,5 +18,4 @@ public class MainController {
 //        log.debug("==================== MainController ====================");
 //        return ResponseEntity.ok().build();
 //    }
-
 }
