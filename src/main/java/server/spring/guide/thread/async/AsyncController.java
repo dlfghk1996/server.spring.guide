@@ -1,6 +1,9 @@
 package server.spring.guide.thread.async;
 
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskRejectedException;
@@ -10,6 +13,7 @@ import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import server.spring.guide.common.repository.UserLikeUpRepository;
 
 // 멀티스레드 테스트 환경
 //결론 : 사용 방법 (주석 참고)
@@ -19,21 +23,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "/test/sync")
 public class AsyncController {
-
+    @Autowired
+    private UserLikeUpSynchronizedServiceImpl service;
     @Autowired
     private AsyncService serviceTest;
 
+    @Autowired private UserLikeUpRepository repository;
+
+    private ExecutorService executorService;
+    private CountDownLatch countDownLatch;
 
     // 비동기 test
     @GetMapping("async")
     public Object testAsync() {
         log.info("---------start----------");
         try{
-            for(int i=0; i<30; i++) {
-                serviceTest.testAsync(i);
-            }
+            // given
+            // when
+            IntStream.range(0, 20).forEach(e -> executorService.submit(() -> {
+                    try {
+                        service.decrease(2L, 1);
+                    } finally {
+                        countDownLatch.countDown();
+                    }
+                }
+            ));
+            countDownLatch.await();
+            // then
+            final int afterCount = repository.findById(2L).get().getCount();
+            System.out.println("### 동시성 처리 이후 수량 ###" + afterCount);
 
-        }catch(TaskRejectedException e){  // Queue 사이즈 초과 방어 코드
+        }catch(TaskRejectedException | InterruptedException e){  // Queue 사이즈 초과 방어 코드
             // 핸들링
         }
         log.info("---------end----------");
