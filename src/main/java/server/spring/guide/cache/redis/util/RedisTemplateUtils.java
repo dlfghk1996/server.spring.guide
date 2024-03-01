@@ -1,4 +1,5 @@
 package server.spring.guide.cache.redis.util;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +12,7 @@ import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Component;
+import server.spring.guide.cache.redis.enums.CachingType;
 
 /** RedisTemplate 사용 Utils
  *
@@ -71,17 +73,37 @@ public class RedisTemplateUtils {
 
     /** Set ZSet Type */
     public void setDataByZSet(String key, String field, Double value){
-        redisTemplate.opsForZSet().add(key, field, value);
+        boolean result = redisTemplate.opsForZSet().add(key, field, value);
+        if(!result){
+            throw new RuntimeException();
+        }
+    }
+
+    /** get List ZSet Type */
+    public List<TypedTuple<Object>> getListByZSet(String key){
+        Cursor<TypedTuple<Object>> cursor = redisTemplate.opsForZSet()
+            .scan(key,ScanOptions.scanOptions().match("*::*")
+            .count(10).build());
+
+        List<TypedTuple<Object>> objects = new ArrayList<>();
+        while(cursor.hasNext()) {
+            objects.add(cursor.next());
+        }
+
+        return objects;
     }
 
     /** get ranking ZSet Type */
-    public Long getDataRankingByZSet(String key, String field){
+    public Long getUserRankingByZSet(String key, String field){
         Long ranking = 0L;
-        Long ranking1 = redisTemplate.opsForZSet().rank(key, field);
-        System.out.println(ranking1);
-        Set<Object> ranking2 = redisTemplate.opsForZSet().reverseRangeByScore("ranking", ranking, ranking1, 0, 1);
-        for (Object s : ranking2) {
-            ranking = redisTemplate.opsForZSet().reverseRank(key, s);
+
+        // 먼저 해당 key 의 점수를 가져온다. (ZSCORE),
+        Double score = redisTemplate.opsForZSet().score(key, field);
+        // 그 점수의 rank 리스트를 가져온다 (ZREVRANGEBYSCORE),
+        // 그 리스트의 첫 key 의 랭킹을 가져온다.
+        Set<Object> scoreRankingList = redisTemplate.opsForZSet().reverseRangeByScore(key, score, score, 0, 1);
+        for (Object firstRankKey : scoreRankingList) {
+            ranking = redisTemplate.opsForZSet().reverseRank(key, firstRankKey);
         }
         //index가 0부터 시작되어서 1 더해준다
         return ranking+1;
@@ -92,14 +114,14 @@ public class RedisTemplateUtils {
         return redisTemplate.opsForZSet().score(key, field);
     }
 
-    /** get all ZSet Type */
-    public Set<TypedTuple<Object>> getAllDataByZSet(String key, int start, int end){
+    /** get LinkList ZSet Type */
+    public Set<TypedTuple<Object>> getRankingListByZSet(String key, int start, int end){
         return redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
     }
 
     /** increment ZSet Type Data */
-    public Double incrementByZSet(String key, String userName, double score){
-        return redisTemplate.opsForZSet().incrementScore(key, userName, score);
+    public Double incrementByZSet(String key, String userName, double count){
+        return redisTemplate.opsForZSet().incrementScore(key, userName, count);
     }
 
     /** Set List Type */
@@ -154,5 +176,7 @@ public class RedisTemplateUtils {
     public void expire(String key, int day, TimeUnit timeUnit) {
         redisTemplate.expire(key, day, timeUnit);
     }
+
+
 }
 

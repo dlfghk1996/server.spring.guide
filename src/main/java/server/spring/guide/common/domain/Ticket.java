@@ -42,6 +42,6 @@ public class Ticket {
         reservedAmount++;
     }
 
-//    @Version
-//    private Integer version;
+    @Version
+    private Integer version;
 }

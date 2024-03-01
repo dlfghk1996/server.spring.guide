@@ -1,15 +1,19 @@
-package server.spring.guide.cache.redis.dto;
+package server.spring.guide.common.dto;
+
+
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class RankingResponse {
+@NoArgsConstructor
+public class LikeUpDTO {
+
     private Long userId;
     private String userName;
-    private Long raking;
     private int count;
+
+
 }

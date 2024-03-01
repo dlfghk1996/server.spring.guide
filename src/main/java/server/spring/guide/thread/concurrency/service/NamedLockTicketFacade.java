@@ -36,9 +36,3 @@ public class NamedLockTicketFacade {
         }
     }
 }
-// 분산락  : 공통된 저장소를 사용해서 자원이 사용 중인지 체크/휙득/반납하는 형태로
-// 보통 분산된 서버들 간의 동기화 처리를 지원하는 락킹을 말한다.
-
-// 분산 서버 환경에서 pessimistic lock 을 사용할 경우 ,timeout설정하는 것이 까다롭기 떄문에
-// timeout 설정이 간단한 namedLock 을 사용하는게 낫다는 의견이 있다.
-// namded lock 을 사용하면 복잡한 로직을 처리할 때 로직을 하나의 트랜잭션으로 묶을 수 있다는 장점이 있다.

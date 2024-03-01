@@ -3,9 +3,9 @@ package server.spring.guide.cache.redis.enums;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum CachingType {
-    VISIT("VISIT", "조회수"),
+    TOPRANKING("TOP_RANKING", "조회수"),
     LIKE("LIKE", "좋아요."),
-    RANKING("RANKING", "좋아요 랭킹");;
+    RANKING("WEEK_RANKING", "좋아요 랭킹");
 
     @JsonValue
     private final String code;

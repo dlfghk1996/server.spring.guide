@@ -1,11 +1,9 @@
 package server.spring.guide.common.repository;
 
-import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
-import server.spring.guide.common.domain.User;
-import server.spring.guide.common.domain.UserLikeUp;
+import server.spring.guide.common.domain.LikeUp;
 
-public interface UserLikeUpRepository extends JpaRepository<UserLikeUp, Long> {
+public interface UserLikeUpRepository extends JpaRepository<LikeUp, Long> {
 
    // void addViewCntFromRedis(Long productId, Long viewCnt);
 

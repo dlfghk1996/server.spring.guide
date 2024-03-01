@@ -25,6 +25,8 @@ public class QTicket extends EntityPathBase<Ticket> {
 
     public final NumberPath<Integer> totalAmount = createNumber("totalAmount", Integer.class);
 
+    public final NumberPath<Integer> version = createNumber("version", Integer.class);
+
     public QTicket(String variable) {
         super(Ticket.class, forVariable(variable));
     }

@@ -4,11 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import server.spring.guide.common.domain.Ticket;
 import server.spring.guide.common.domain.TicketReservationHistory;
-import server.spring.guide.common.domain.UserLikeUp;
 import server.spring.guide.common.repository.TicketReservationHistoryRepository;
 import server.spring.guide.common.repository.TicketingRepository;
-import server.spring.guide.common.repository.UserLikeUpRepository;
-import server.spring.guide.common.service.UserLikeUpService;
 
 
 @RequiredArgsConstructor

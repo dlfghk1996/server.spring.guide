@@ -28,3 +28,4 @@ public class OptimisticLockTicketService {
         ticketReservationHistoryRepository.save(new TicketReservationHistory(ticket, ticketNumber));
     }
 }
+

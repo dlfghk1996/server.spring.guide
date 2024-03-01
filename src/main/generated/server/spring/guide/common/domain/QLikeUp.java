@@ -10,14 +10,14 @@ import com.querydsl.core.types.Path;
 
 
 /**
- * QUserLikeUp is a Querydsl query type for UserLikeUp
+ * QLikeUp is a Querydsl query type for LikeUp
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QUserLikeUp extends EntityPathBase<UserLikeUp> {
+public class QLikeUp extends EntityPathBase<LikeUp> {
 
-    private static final long serialVersionUID = -1317028148L;
+    private static final long serialVersionUID = -1275540831L;
 
-    public static final QUserLikeUp userLikeUp = new QUserLikeUp("userLikeUp");
+    public static final QLikeUp likeUp = new QLikeUp("likeUp");
 
     public final NumberPath<Integer> count = createNumber("count", Integer.class);
 
@@ -25,18 +25,16 @@ public class QUserLikeUp extends EntityPathBase<UserLikeUp> {
 
     public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
-    public final NumberPath<Long> version = createNumber("version", Long.class);
-
-    public QUserLikeUp(String variable) {
-        super(UserLikeUp.class, forVariable(variable));
+    public QLikeUp(String variable) {
+        super(LikeUp.class, forVariable(variable));
     }
 
-    public QUserLikeUp(Path<? extends UserLikeUp> path) {
+    public QLikeUp(Path<? extends LikeUp> path) {
         super(path.getType(), path.getMetadata());
     }
 
-    public QUserLikeUp(PathMetadata metadata) {
-        super(UserLikeUp.class, metadata);
+    public QLikeUp(PathMetadata metadata) {
+        super(LikeUp.class, metadata);
     }
 
 }

@@ -3,7 +3,6 @@ package server.spring.guide.thread.concurrency.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import server.spring.guide.common.domain.Ticket;
-import server.spring.guide.common.domain.UserLikeUp;
 
 public interface NamedLockTicketRepository extends JpaRepository<Ticket, Long> {
 

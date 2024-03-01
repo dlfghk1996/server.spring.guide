@@ -5,6 +5,10 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+log/
+.gradle/
+log/spring_dev.log
+
 ### STS ###
 .apt_generated
 .classpath
@@ -36,8 +40,6 @@ out/
 ### VS Code ###
 .vscode/
 
-
 ### resource ##
 src/main/resources/application-local.yml
 application-local.yml
-log/

@@ -9,10 +9,11 @@ import org.springframework.stereotype.Service;
 import server.spring.guide.common.service.UserService;
 
 @Slf4j
-@RequiredArgsConstructor
 @Transactional
 @Service
 public class UserServiceImpl implements UserService {
 
-
+    public UserServiceImpl() {
+        System.out.println("UserServiceImpl 생성자 호출");
+    }
 }

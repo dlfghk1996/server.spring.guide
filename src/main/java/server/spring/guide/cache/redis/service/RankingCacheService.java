@@ -1,19 +1,18 @@
 package server.spring.guide.cache.redis.service;
 
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
 import server.spring.guide.cache.redis.dto.RankingResponse;
 import server.spring.guide.cache.redis.enums.CachingType;
-import server.spring.guide.common.domain.User;
-import server.spring.guide.common.dto.UserLikeUpDTO;
 import server.spring.guide.cache.redis.util.RedisTemplateUtils;
+import server.spring.guide.common.domain.User;
 import server.spring.guide.common.repository.UserRepository;
 
 //Graphy 프로젝트를 진행하면서 ‘이번 주 인기 프로젝트’ 기능 구현을 맡았다.
@@ -40,24 +39,38 @@ public class RankingCacheService {
 
     // 전체 랭킹 조회
     public List<RankingResponse> getRankingList() {
-        System.out.println(
-            redisTemplateUtils.getListByHash(CachingType.RANKING.getCode()).toString());
+        Object rankingList = redisTemplateUtils.getListByHash(CachingType.RANKING.getCode());
+        System.out.println(rankingList.toString());
+        return null;
+    }
 
-        return (List<RankingResponse>) redisTemplateUtils.getListByHash(CachingType.RANKING.getCode());
+    public void addToRedis(Long userId){
+        User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException());
+        String field = user.getName() + "::" + userId;
+        Double count = redisTemplateUtils.getDataByZSet(CachingType.RANKING.getCode(), field);
+
+        if(count == null){
+            redisTemplateUtils.setDataByZSet(CachingType.RANKING.getCode(), field, (double) 1);
+        }else{
+            redisTemplateUtils.incrementByZSet(CachingType.RANKING.getCode(), field,1);
+        }
     }
 
     // 사용자 랭킹 조회
-    public RankingResponse getUserRanking(Long userId) {
-        return null;
+    public Long getUserRanking(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException());
+        String field = user.getName() + "::" + userId;
+        return redisTemplateUtils.getUserRankingByZSet(CachingType.RANKING.getCode(), field);
+
     }
+
+    // 같은 등수 일경우 동점 처리
 }
 
-//따라서 나의 점수와 같은 사람들 중 등수가 제일 높은사람의 등수를 반환할 수 있는 로직을 구성해서 문제를 해결했다.
-//회원 변경 및 삭제가 일어날때도 Redis value값을 바꿔줘야한다는 걸 서비스 도중 알게되어서 수정했다.
-
-
-//다른 해결해야하는 문제는 전체 유저 기준의 등수를 알기 위해선,
-// Redis에 모든 유저에 대한 score정보가 입력되어야 한다는 것이다.
-// score에 대한 rank는 결국 각 값에 대한 index position이기 때문이다.
-//만약 유저의 일부만 캐싱된 상태에서 HTTP 요청을 받게 된다면
-// sorted-set에 있는 모든 유저들보다 실제 유저가 더 많기 때문에, 전체 등수 결과에 왜곡이 생긴다.
+/**
+ * 더 고민해봐야 할 것
+ * 전체 유저 기준의 등수를 알기 위해선,Redis에 모든 유저에 대한 score정보가 입력되어야 한다.
+ * 회원 변경 및 삭제가 일어날때도 Redis value값도 수정해줘야 한다.
+ * 동점자 처리 참고(https://developstudy.tistory.com/89)
+ * 어뷰징 처리
+ * */
