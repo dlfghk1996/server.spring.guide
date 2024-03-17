@@ -1,10 +1,6 @@
 package server.spring.guide.cache.redis.service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +14,6 @@ import server.spring.guide.cache.redis.dto.RankingResponse;
 import server.spring.guide.cache.redis.enums.CachingType;
 import server.spring.guide.cache.redis.util.RedisTemplateUtils;
 import server.spring.guide.common.domain.LikeUp;
-import server.spring.guide.common.domain.User;
 import server.spring.guide.common.repository.UserLikeUpRepository;
 import server.spring.guide.common.repository.UserRepository;
 
